@@ -2,7 +2,7 @@ package user
 
 import (
 	"elasticsearch-data-import-go/es"
-	"elasticsearch-data-import-go/service/rebuild"
+	"elasticsearch-data-import-go/rebuild"
 	userDao "elasticsearch-data-import-go/web/dao/user"
 	"fmt"
 	"log"
@@ -20,7 +20,7 @@ const (
 )
 
 func init() {
-	UerRebuildHandler = rebuild.NewRebuildHandler(userRebuild{})
+	UerRebuildHandler = rebuild.NewRebuildHandler(userRebuild{}, 500)
 	indexInfos = map[string]interface{}{
 		"mappings": map[string]interface{}{
 			"properties": map[string]interface{}{
@@ -135,7 +135,7 @@ func (u userRebuild) HandleDeleteIndex(newIndexName string, oldIndexName string)
 
 func (u userRebuild) HandlePartImport(r rebuild.Record, indexes []string, args map[string]interface{}) error {
 
-	userRecord, ok := r.(UserRecord)
+	userRecord, ok := r.Data.(UserRecord)
 	if !ok {
 		return fmt.Errorf("HandlePartImport fail! record can not cast type UserRecord")
 	}
@@ -178,8 +178,24 @@ func (u userRebuild) NeedForceMergeEvent() bool {
 	return false
 }
 
+func (u userRebuild) UseCustomCache() bool {
+	return false
+}
+
 func (u userRebuild) GetTimeout() int64 {
 	return rebuild.OneHour
+}
+
+func (u userRebuild) CacheRecord(record *rebuild.Record) {
+
+}
+
+func (u userRebuild) LoadRecords(id string) (records []*rebuild.Record, lastId string) {
+	return nil, ""
+}
+
+func (u userRebuild) TimeoutAlert() {
+
 }
 
 func poToMap(po *userDao.UserBasic) *map[string]interface{} {

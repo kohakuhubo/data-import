@@ -1,12 +1,14 @@
 package user
 
 import (
-	"elasticsearch-data-import-go/service/rebuild/user"
+	"elasticsearch-data-import-go/rebuild"
+	"elasticsearch-data-import-go/rebuild/user"
 	httpHelper "elasticsearch-data-import-go/util/httputil"
 	"elasticsearch-data-import-go/util/resutil"
 	"encoding/json"
 	"log"
 	"net/http"
+	"strconv"
 )
 
 type RebuildReq struct {
@@ -93,11 +95,16 @@ func PartImport(w http.ResponseWriter, r *http.Request) {
 	var res *resutil.ResponseEntity
 	defer finallyHandle(w, env, &res)
 
-	var record user.UserRecord
-	if err := json.NewDecoder(r.Body).Decode(&record); err != nil {
+	var ur user.UserRecord
+	if err := json.NewDecoder(r.Body).Decode(&ur); err != nil {
 		log.Printf("PartImport handle fail! env:%v error: %v", env, err)
 		res = resutil.Error(resutil.SYSTEM_ERROR, "request param must json!")
 		return
+	}
+
+	record := rebuild.Record{
+		Id:   strconv.FormatInt(ur.Id, 10),
+		Data: &ur,
 	}
 
 	err := user.UerRebuildHandler.PartImport(record, make(map[string]interface{}))

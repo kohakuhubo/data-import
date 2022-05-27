@@ -2,7 +2,7 @@ package user
 
 import (
 	"elasticsearch-data-import-go/es"
-	"elasticsearch-data-import-go/service/rebuild"
+	"elasticsearch-data-import-go/rebuild"
 	userDao "elasticsearch-data-import-go/web/dao/user"
 	"fmt"
 	"log"
